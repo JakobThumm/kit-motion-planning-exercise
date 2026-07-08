@@ -22,7 +22,7 @@ def launch_setup(context, *args, **kwargs):
         package="kit_mp_benchmark",
         executable="benchmark_sweep",
         output="screen",
-        parameters=moveit_params(),
+        parameters=moveit_params(moveit_cpp=True),
         arguments=["--task", task, "--reps", reps,
                    "--specs", specs, "--output", output],
     )

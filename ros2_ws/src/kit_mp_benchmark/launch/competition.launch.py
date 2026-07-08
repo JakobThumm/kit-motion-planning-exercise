@@ -22,7 +22,7 @@ def launch_setup(context, *args, **kwargs):
         package="kit_mp_benchmark",
         executable="scorer",
         output="screen",
-        parameters=moveit_params(),
+        parameters=moveit_params(moveit_cpp=True),
         arguments=["--output", output, "--group", group, "--reps", reps],
     )
     return [scorer]

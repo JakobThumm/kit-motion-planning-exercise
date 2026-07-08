@@ -3,8 +3,6 @@ Panels:
     Name: Displays
   - Class: rviz_common/Views
     Name: Views
-  - Class: moveit_rviz_plugin/MotionPlanning
-    Name: MotionPlanning
 Visualization Manager:
   Class: ""
   Displays:
@@ -33,8 +31,8 @@ Visualization Manager:
         Show Joint Torques: false
       Planned Path:
         Loop Animation: false
-        Show Trail: true
-        Trail Step Size: 1
+        Show Trail: false          # no per-waypoint robot snapshots (heavy in SW GL)
+        Trail Step Size: 20
         State Display Time: 0.05 s
         Trajectory Topic: /display_planned_path
       Scene Geometry:

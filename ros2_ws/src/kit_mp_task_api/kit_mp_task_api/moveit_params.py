@@ -58,11 +58,15 @@ def fr3_robot_description_semantic(hand: str = "true",
 def moveit_params(pipelines=("ompl", "stomp"),
                   default_pipeline="ompl",
                   extra_pipelines=None,
-                  with_rviz_only=False):
+                  moveit_cpp=False):
     """Full parameter list for a move_group / MoveItPy node.
 
     extra_pipelines: optional {name: config_dict} to register additional pipelines
     (e.g. {"isaac_ros_cumotion": {...}} on the GPU track).
+    moveit_cpp: set True for MoveItPy/MoveItCpp consumers (the scorer, the
+    benchmark sweep). MoveItCpp reads the pipeline list from
+    `planning_pipelines.pipeline_names`, whereas the move_group executable reads a
+    flat `planning_pipelines` list. Same configs, different key layout.
     Returns a list of dicts suitable for a launch_ros Node `parameters=`.
     """
     mcfg = get_package_share_directory("franka_fr3_moveit_config")
@@ -86,8 +90,28 @@ def moveit_params(pipelines=("ompl", "stomp"),
             if name not in pipeline_names:
                 pipeline_names.append(name)
 
-    params.append({"planning_pipelines": pipeline_names,
-                   "default_planning_pipeline": default_pipeline})
+    # MoveItCpp/MoveItPy reads default PlanRequestParameters from
+    # `<pipeline>.plan_request_params.*`; provide them to avoid a wall of
+    # "parameter not found, using default" warnings. solve.py overrides per plan.
+    for name in pipeline_names:
+        cfg = pipeline_cfgs.setdefault(name, {})
+        cfg.setdefault("plan_request_params", {
+            "planning_pipeline": name,
+            "planner_id": "RRTConnect" if name == "ompl" else "",
+            "planning_time": 5.0,
+            "planning_attempts": 1,
+            "max_velocity_scaling_factor": 1.0,
+            "max_acceleration_scaling_factor": 1.0,
+        })
+
+    if moveit_cpp:
+        params.append({"planning_pipelines": {
+            "pipeline_names": pipeline_names,
+            "default_planning_pipeline": default_pipeline,
+        }})
+    else:
+        params.append({"planning_pipelines": pipeline_names,
+                       "default_planning_pipeline": default_pipeline})
     for name in pipeline_names:
         if name in pipeline_cfgs:
             params.append({name: pipeline_cfgs[name]})
