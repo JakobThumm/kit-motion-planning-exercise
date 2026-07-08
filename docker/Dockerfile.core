@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       python3-numpy python3-matplotlib python3-yaml python3-pip \
       ros-jazzy-moveit-py ros-jazzy-moveit-ros-benchmarks \
       ros-jazzy-moveit-planners-ompl ros-jazzy-moveit-planners-stomp \
+      ros-jazzy-moveit-ros-visualization ros-jazzy-moveit-ros-move-group \
+      ros-jazzy-moveit-kinematics ros-jazzy-moveit-simple-controller-manager \
+      ros-jazzy-joint-state-publisher ros-jazzy-rviz2 \
       ros-jazzy-ros2-controllers ros-jazzy-controller-manager \
     && rm -rf /var/lib/apt/lists/*
 
