@@ -78,8 +78,8 @@ def generate_launch_description():
         DeclareLaunchArgument("use_rviz", default_value="true"),
         DeclareLaunchArgument(
             "scene",
-            default_value="cluttered_table",
-            description="Scene name from kit_mp_scenes (empty = none).",
+            default_value="empty",
+            description="Scene from kit_mp_scenes. run_task also loads its task's scene.",
         ),
         OpaqueFunction(function=launch_setup),
     ])

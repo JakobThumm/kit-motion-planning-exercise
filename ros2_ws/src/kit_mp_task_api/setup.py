@@ -19,5 +19,9 @@ setup(
     maintainer_email="jakob.thumm@kit.edu",
     description="Task definitions and the student-facing planning API.",
     license="MIT",
-    entry_points={"console_scripts": []},
+    entry_points={
+        "console_scripts": [
+            "run_task = kit_mp_task_api.run_task:main",
+        ],
+    },
 )
