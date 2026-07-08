@@ -18,9 +18,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR ${WS}
 
-# 1. Vendor the FR3 sources (pinned).
+# 1. Vendor the FR3 sources (pinned), then prune franka_ros2 to just the MoveIt
+#    config. The rest (franka_hardware/libfranka, franka_bringup, franka_gazebo,
+#    franka_mobile, ...) is only for real hardware / Gazebo and drags in a large
+#    dependency web we don't need for the CPU core track. franka_fr3_moveit_config
+#    builds with only ament_cmake (it just installs config/launch), and our
+#    core.launch.py reads its config via MoveItConfigsBuilder at runtime.
 COPY docker/franka.repos /tmp/franka.repos
-RUN mkdir -p src && vcs import src < /tmp/franka.repos
+RUN mkdir -p src && vcs import src < /tmp/franka.repos \
+    && find src/franka_ros2 -mindepth 1 -maxdepth 1 -type d \
+         ! -name franka_fr3_moveit_config -exec rm -rf {} + \
+    && echo "kept in franka_ros2:" && ls src/franka_ros2
 
 # 2. Copy the exercise packages.
 COPY ros2_ws/src/ ${WS}/src/

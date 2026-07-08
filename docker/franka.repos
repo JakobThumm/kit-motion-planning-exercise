@@ -1,5 +1,12 @@
 # Vendored FR3 sources, pinned for reproducibility.
 # Pulled into ros2_ws/src by `vcs import` (see scripts/setup_workspace.sh and Dockerfile.core).
+# Versions match franka_ros2 v3.4.1's dependency.repos (franka_description 2.8.1).
+#
+# For the CORE track we build only franka_description + franka_fr3_moveit_config
+# (Dockerfile.core prunes the rest of franka_ros2). The pruned packages
+# (franka_hardware/libfranka, franka_bringup, franka_gazebo, franka_mobile, ...)
+# are only needed for real hardware / Gazebo; the instructor builds the full
+# franka_ros2 separately for the real-FR3 competition run.
 repositories:
   franka_ros2:
     type: git
@@ -8,4 +15,4 @@ repositories:
   franka_description:
     type: git
     url: https://github.com/frankarobotics/franka_description.git
-    version: 0.4.1
+    version: 2.8.1
