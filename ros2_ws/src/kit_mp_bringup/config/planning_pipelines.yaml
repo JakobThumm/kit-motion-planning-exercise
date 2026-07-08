@@ -1,0 +1,9 @@
+# Registers the planning pipelines available to move_group.
+# On the CORE track only "ompl" is active. On the ADVANCED track the cuMotion
+# pipeline is added so you can request it per-plan via MotionPlanRequest.pipeline_id.
+#
+# The launch file adds "isaac_ros_cumotion" to this list when the GPU track is on.
+default_planning_pipeline: ompl
+planning_pipelines:
+  - ompl
+  # - isaac_ros_cumotion    # <- uncommented by kit_mp_curobo on the advanced track

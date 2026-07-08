@@ -1,0 +1,35 @@
+# ROS 2 / colcon
+build/
+install/
+log/
+
+# Vendored sources pulled by vcs import (kept out of git; use *.repos to reproduce)
+ros2_ws/src/franka_ros2/
+ros2_ws/src/franka_description/
+ros2_ws/src/isaac_ros_cumotion/
+ros2_ws/src/isaac_ros_common/
+
+# Results & scoring artifacts
+results/
+*.db
+/tmp/moveit_benchmarks/
+submission/**/results.json
+!submission/TEMPLATE/results.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Isaac Sim / large assets
+*.usd.bak
+kit_cache/
+
+# Editor / OS
+.vscode/
+*.swp
+.DS_Store
+
+# Docker local env
+docker/.env

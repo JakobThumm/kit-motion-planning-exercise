@@ -1,0 +1,29 @@
+# Trajectory execution controllers.
+#
+# BOTH tracks use the SIMPLE controller manager talking to a
+# joint_trajectory_controller (`fr3_arm_controller`) over a FollowJointTrajectory
+# action. On the CORE track that controller runs on ros2_control MOCK hardware
+# (CPU only, no GPU); on the ADVANCED track the Isaac Sim bridge provides it.
+# The score is trajectory *duration*, so mock tracking is exact and sufficient.
+moveit_simple_controller_manager:
+  controller_names:
+    - fr3_arm_controller
+  fr3_arm_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - fr3_joint1
+      - fr3_joint2
+      - fr3_joint3
+      - fr3_joint4
+      - fr3_joint5
+      - fr3_joint6
+      - fr3_joint7
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+trajectory_execution:
+  allowed_execution_duration_scaling: 1.2
+  allowed_goal_duration_margin: 0.5
+  allowed_start_tolerance: 0.01

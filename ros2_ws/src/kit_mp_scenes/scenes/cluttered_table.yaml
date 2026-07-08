@@ -1,0 +1,20 @@
+# A table in front of the FR3 with a few obstacles on it. Moderate difficulty:
+# the arm must plan over/around the objects.
+frame_id: base
+objects:
+  - id: table_top
+    type: box
+    dims: [0.9, 1.2, 0.04]
+    pose: {xyz: [0.55, 0.0, 0.20], rpy: [0.0, 0.0, 0.0]}
+  - id: box_left
+    type: box
+    dims: [0.12, 0.12, 0.25]
+    pose: {xyz: [0.5, 0.30, 0.345], rpy: [0.0, 0.0, 0.0]}
+  - id: box_right
+    type: box
+    dims: [0.12, 0.12, 0.20]
+    pose: {xyz: [0.5, -0.28, 0.32], rpy: [0.0, 0.0, 0.0]}
+  - id: pillar_center
+    type: cylinder
+    dims: [0.35, 0.04]      # height, radius
+    pose: {xyz: [0.55, 0.0, 0.395], rpy: [0.0, 0.0, 0.0]}

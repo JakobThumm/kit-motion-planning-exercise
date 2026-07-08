@@ -1,0 +1,68 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Views
+    Name: Views
+  - Class: moveit_rviz_plugin/MotionPlanning
+    Name: MotionPlanning
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Plane Cell Count: 20
+      Reference Frame: <Fixed Frame>
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: false
+      Show Names: true
+    - Class: moveit_rviz_plugin/MotionPlanning
+      Name: MotionPlanning
+      Enabled: true
+      Move Group Namespace: ""
+      Planning Scene Topic: /monitored_planning_scene
+      Robot Description: robot_description
+      Planning Request:
+        Planning Group: fr3_arm
+        Query Goal State: true
+        Query Start State: false
+        Interactive Marker Size: 0.15
+      Planning Metrics:
+        Show Weight Limit: false
+        Show Joint Torques: false
+      Planned Path:
+        Loop Animation: false
+        Show Trail: true
+        Trail Step Size: 1
+        State Display Time: 0.05 s
+        Trajectory Topic: /display_planned_path
+      Scene Geometry:
+        Scene Alpha: 0.8
+        Show Scene Geometry: true
+      Scene Robot:
+        Show Scene Robot: true
+        Robot Alpha: 0.5
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: base
+    Frame Rate: 30
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Interact
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      Distance: 2.2
+      Focal Point:
+        X: 0.3
+        Y: 0.0
+        Z: 0.3
+      Pitch: 0.4
+      Yaw: 0.9
+Window Geometry:
+  Height: 900
+  Width: 1500
+  MotionPlanning:
+    collapsed: false

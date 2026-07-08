@@ -1,0 +1,18 @@
+# Fill this in for your group. Must match what you actually scored.
+group: TEMPLATE                # your team name
+members:
+  - Ada Lovelace
+  - Alan Turing
+
+pipeline_id: ompl              # ompl (CPU) or isaac_ros_cumotion (GPU)
+planner_id: RRTConnect         # the planner you chose
+
+# Request-level settings (must match student_solution.py).
+allowed_planning_time: 5.0
+max_velocity_scaling_factor: 1.0
+max_acceleration_scaling_factor: 1.0
+
+# One or two sentences: what did you tune and why?
+method_note: >
+  Describe your approach here (planner choice, key hyperparameters, any insight
+  about why it produces a short trajectory on the competition scene).

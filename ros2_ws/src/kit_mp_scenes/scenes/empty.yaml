@@ -1,0 +1,3 @@
+# Empty world (only the ground plane implied). Good for a first, unconstrained plan.
+frame_id: base
+objects: []

@@ -1,0 +1,21 @@
+# A wall with a narrow gap the end-effector must pass through. Hard for greedy
+# planners (low goal_bias helps); a classic sampling-based-planning stress test.
+frame_id: base
+objects:
+  - id: wall_lower
+    type: box
+    dims: [0.04, 1.0, 0.45]
+    pose: {xyz: [0.45, 0.0, 0.225], rpy: [0.0, 0.0, 0.0]}
+  - id: wall_upper
+    type: box
+    dims: [0.04, 1.0, 0.45]
+    pose: {xyz: [0.45, 0.0, 0.90], rpy: [0.0, 0.0, 0.0]}
+  - id: wall_left
+    type: box
+    dims: [0.04, 0.42, 0.25]
+    pose: {xyz: [0.45, 0.29, 0.55], rpy: [0.0, 0.0, 0.0]}
+  - id: wall_right
+    type: box
+    dims: [0.04, 0.42, 0.25]
+    pose: {xyz: [0.45, -0.29, 0.55], rpy: [0.0, 0.0, 0.0]}
+  # gap: a ~0.16 m x 0.20 m window centred at (0.45, 0.0, 0.55)

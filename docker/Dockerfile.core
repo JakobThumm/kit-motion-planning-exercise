@@ -1,0 +1,40 @@
+# CORE track image: ROS 2 Jazzy + MoveIt 2 + FR3 MoveIt config. CPU only, no GPU required.
+# Base image ships MoveIt 2 (Jazzy) prebuilt and sourced.
+FROM moveit/moveit2:jazzy-release
+
+SHELL ["/bin/bash", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DISTRO=jazzy
+ENV WS=/root/ros2_ws
+
+# Build tooling + Python deps used by the scoring / plotting harness.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      git python3-vcstool python3-colcon-common-extensions python3-rosdep \
+      python3-numpy python3-matplotlib python3-yaml python3-pip \
+      ros-jazzy-moveit-py ros-jazzy-moveit-ros-benchmarks \
+      ros-jazzy-moveit-planners-ompl ros-jazzy-ros2-controllers \
+      ros-jazzy-controller-manager \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR ${WS}
+
+# 1. Vendor the FR3 sources (pinned).
+COPY docker/franka.repos /tmp/franka.repos
+RUN mkdir -p src && vcs import src < /tmp/franka.repos
+
+# 2. Copy the exercise packages.
+COPY ros2_ws/src/ ${WS}/src/
+
+# 3. Resolve deps and build.
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+    && (rosdep init 2>/dev/null || true) && rosdep update \
+    && apt-get update \
+    && rosdep install --from-paths src --ignore-src -r -y \
+    && rm -rf /var/lib/apt/lists/*
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+    && colcon build --symlink-install --mixin release
+
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bash"]

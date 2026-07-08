@@ -1,0 +1,12 @@
+# Vendored NVIDIA Isaac ROS / cuMotion sources for the ADVANCED (GPU) track.
+# Pulled into ros2_ws/src by `vcs import` inside Dockerfile.gpu.
+# Requires: Ubuntu 24.04, NVIDIA driver 580+, CUDA 13, nvidia-container-toolkit.
+repositories:
+  isaac_ros_common:
+    type: git
+    url: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common.git
+    version: release-4.5
+  isaac_ros_cumotion:
+    type: git
+    url: https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_cumotion.git
+    version: release-4.5

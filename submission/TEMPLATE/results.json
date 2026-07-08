@@ -1,0 +1,7 @@
+{
+  "group": "TEMPLATE",
+  "valid": false,
+  "execution_time_s": null,
+  "planning_time_s": null,
+  "note": "Replace this with the results.json produced by ./scripts/score_local.sh"
+}

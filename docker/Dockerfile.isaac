@@ -1,0 +1,20 @@
+# Isaac Sim service for the ADVANCED track. Runs in its OWN container and talks to the
+# ROS 2 stack over DDS (shared ROS_DOMAIN_ID) — Isaac Sim 4.5's in-container ROS bridge is
+# unreliable when co-located with a separate ROS 2 install, so we keep them separate.
+#
+# NGC login required to pull the base image:
+#   docker login nvcr.io      (username: '$oauthtoken', password: your NGC API key)
+FROM nvcr.io/nvidia/isaac-sim:4.5.0
+
+# Accept the Isaac Sim / Omniverse terms non-interactively.
+ENV ACCEPT_EULA=Y
+ENV PRIVACY_CONSENT=Y
+ENV OMNI_KIT_ACCEPT_EULA=YES
+
+# Exercise Isaac assets and launch scripts.
+COPY ros2_ws/src/kit_mp_isaac/ /root/kit_mp_isaac/
+
+# The image already bundles a ROS 2 bridge extension. Enable it via the scene script.
+WORKDIR /isaac-sim
+COPY docker/run_isaac.sh /run_isaac.sh
+RUN chmod +x /run_isaac.sh || true

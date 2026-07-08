@@ -1,0 +1,88 @@
+# FR3 XRDF for cuRobo / cuMotion (advanced track).
+#
+# NOTE: the stock isaac_ros_cumotion ships a *Panda* XRDF. FR3 differs in joint
+# limits and link geometry, so this file adapts it for FR3. The collision spheres
+# below are a STARTING POINT approximated from the FR3 links — verify/tune them
+# with the XRDF tutorial (nvidia-isaac-ros cumotion docs) before trusting cuMotion
+# collision avoidance on hardware. Getting these right is part of the advanced task.
+format: xrdf
+format_version: 1.0
+
+default_joint_positions:
+  fr3_joint1: 0.0
+  fr3_joint2: -0.785
+  fr3_joint3: 0.0
+  fr3_joint4: -2.356
+  fr3_joint5: 0.0
+  fr3_joint6: 1.571
+  fr3_joint7: 0.785
+
+cspace:
+  joint_names:
+    - fr3_joint1
+    - fr3_joint2
+    - fr3_joint3
+    - fr3_joint4
+    - fr3_joint5
+    - fr3_joint6
+    - fr3_joint7
+  acceleration_limits: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0]
+  jerk_limits: [5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0]
+
+tool_frames: [fr3_hand_tcp]
+
+collision:
+  geometry: fr3_collision_spheres
+  buffer_distance:
+    fr3_link0: 0.02
+    fr3_link1: 0.02
+    fr3_link2: 0.02
+    fr3_link3: 0.02
+    fr3_link4: 0.02
+    fr3_link5: 0.02
+    fr3_link6: 0.02
+    fr3_link7: 0.02
+    fr3_hand: 0.01
+
+self_collision:
+  geometry: fr3_collision_spheres
+  ignore:
+    fr3_link0: [fr3_link1, fr3_link2]
+    fr3_link1: [fr3_link2, fr3_link3]
+    fr3_link2: [fr3_link3, fr3_link4]
+    fr3_link3: [fr3_link4, fr3_link5]
+    fr3_link4: [fr3_link5, fr3_link6]
+    fr3_link5: [fr3_link6, fr3_link7]
+    fr3_link6: [fr3_link7, fr3_hand]
+    fr3_link7: [fr3_hand]
+
+geometry:
+  fr3_collision_spheres:
+    spheres:
+      fr3_link0:
+        - {center: [0.0, 0.0, 0.05], radius: 0.08}
+      fr3_link1:
+        - {center: [0.0, 0.0, -0.19], radius: 0.06}
+        - {center: [0.0, 0.0, -0.08], radius: 0.06}
+      fr3_link2:
+        - {center: [0.0, -0.08, 0.0], radius: 0.06}
+        - {center: [0.0, 0.0, 0.0], radius: 0.06}
+      fr3_link3:
+        - {center: [0.0, 0.0, -0.06], radius: 0.05}
+        - {center: [0.08, 0.06, 0.0], radius: 0.055}
+      fr3_link4:
+        - {center: [0.0, 0.0, 0.02], radius: 0.055}
+        - {center: [-0.08, 0.06, 0.0], radius: 0.055}
+      fr3_link5:
+        - {center: [0.0, 0.0, -0.28], radius: 0.055}
+        - {center: [0.0, 0.06, -0.19], radius: 0.05}
+        - {center: [0.0, 0.08, -0.10], radius: 0.025}
+      fr3_link6:
+        - {center: [0.0, 0.0, 0.0], radius: 0.05}
+        - {center: [0.08, 0.0, 0.0], radius: 0.045}
+      fr3_link7:
+        - {center: [0.0, 0.0, 0.07], radius: 0.045}
+      fr3_hand:
+        - {center: [0.0, 0.0, 0.04], radius: 0.05}
+        - {center: [0.0, -0.05, 0.10], radius: 0.028}
+        - {center: [0.0, 0.05, 0.10], radius: 0.028}

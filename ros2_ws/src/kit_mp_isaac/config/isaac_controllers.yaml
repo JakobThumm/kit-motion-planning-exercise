@@ -1,0 +1,15 @@
+# Controller config for executing MoveIt trajectories in Isaac Sim.
+# MoveIt (isaac_execution.launch.py) uses the simple controller manager and sends
+# FollowJointTrajectory goals to fr3_arm_controller; the Isaac bridge applies them.
+fr3_arm_controller:
+  joints:
+    - fr3_joint1
+    - fr3_joint2
+    - fr3_joint3
+    - fr3_joint4
+    - fr3_joint5
+    - fr3_joint6
+    - fr3_joint7
+  # Command topic the Isaac articulation controller subscribes to.
+  command_topic: /joint_command
+  state_topic: /joint_states

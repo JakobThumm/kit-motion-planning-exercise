@@ -1,0 +1,27 @@
+# Optional: configuration for the OFFICIAL moveit_ros_benchmarks executor.
+# Our own run_benchmark.py sweep is the primary tool (works for OMPL and cuMotion
+# alike and produces the plots). This file documents the classic OMPL Planner
+# Arena route for students who want the statistically rich output.
+#
+# Run (requires a warehouse DB of scenes/queries, see docs/04_benchmarking.md):
+#   ros2 run moveit_ros_benchmarks moveit_run_benchmark --ros-args \
+#       --params-file config/benchmark.yaml
+benchmark_config:
+  parameters:
+    name: fr3_ompl_comparison
+    runs: 20
+    group: fr3_arm
+    timeout: 10.0
+    output_directory: /tmp/moveit_benchmarks/
+    queries_regex: ".*"
+    scene_name: competition
+  planning_pipelines:
+    pipelines: ["ompl"]
+    ompl:
+      planners:
+        - RRTConnect
+        - RRTstar
+        - PRMstar
+        - BiTRRT
+        - KPIECE
+        - AITstar

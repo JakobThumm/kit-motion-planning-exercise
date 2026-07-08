@@ -1,0 +1,11 @@
+build/
+install/
+log/
+results/
+**/__pycache__/
+*.py[cod]
+.git/
+.venv/
+docker/.env
+*.usd
+kit_cache/

@@ -1,0 +1,28 @@
+# A two-level shelf in front of the robot. The arm must reach into a compartment,
+# rewarding planners that handle constrained approaches.
+frame_id: base
+objects:
+  - id: shelf_bottom
+    type: box
+    dims: [0.30, 0.80, 0.02]
+    pose: {xyz: [0.60, 0.0, 0.25], rpy: [0.0, 0.0, 0.0]}
+  - id: shelf_middle
+    type: box
+    dims: [0.30, 0.80, 0.02]
+    pose: {xyz: [0.60, 0.0, 0.55], rpy: [0.0, 0.0, 0.0]}
+  - id: shelf_top
+    type: box
+    dims: [0.30, 0.80, 0.02]
+    pose: {xyz: [0.60, 0.0, 0.85], rpy: [0.0, 0.0, 0.0]}
+  - id: shelf_back
+    type: box
+    dims: [0.02, 0.80, 0.62]
+    pose: {xyz: [0.75, 0.0, 0.55], rpy: [0.0, 0.0, 0.0]}
+  - id: shelf_side_left
+    type: box
+    dims: [0.30, 0.02, 0.62]
+    pose: {xyz: [0.60, 0.40, 0.55], rpy: [0.0, 0.0, 0.0]}
+  - id: shelf_side_right
+    type: box
+    dims: [0.30, 0.02, 0.62]
+    pose: {xyz: [0.60, -0.40, 0.55], rpy: [0.0, 0.0, 0.0]}

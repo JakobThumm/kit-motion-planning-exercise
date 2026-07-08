@@ -1,0 +1,11 @@
+# Vendored FR3 sources, pinned for reproducibility.
+# Pulled into ros2_ws/src by `vcs import` (see scripts/setup_workspace.sh and Dockerfile.core).
+repositories:
+  franka_ros2:
+    type: git
+    url: https://github.com/frankarobotics/franka_ros2.git
+    version: v3.4.1
+  franka_description:
+    type: git
+    url: https://github.com/frankarobotics/franka_description.git
+    version: 0.4.1

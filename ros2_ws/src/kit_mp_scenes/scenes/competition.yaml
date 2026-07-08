@@ -1,0 +1,30 @@
+# === COMPETITION SCENE (fixed) ===============================================
+# This is the scene every group is scored against. It combines a shelf reach with
+# side obstacles: rewards planners that find a short, smooth path through a
+# constrained workspace. Do not edit for scoring — the scorer loads its own copy.
+frame_id: base
+objects:
+  - id: table_top
+    type: box
+    dims: [0.9, 1.2, 0.04]
+    pose: {xyz: [0.55, 0.0, 0.20], rpy: [0.0, 0.0, 0.0]}
+  - id: shelf_shelf
+    type: box
+    dims: [0.28, 0.70, 0.02]
+    pose: {xyz: [0.62, -0.10, 0.55], rpy: [0.0, 0.0, 0.0]}
+  - id: shelf_top
+    type: box
+    dims: [0.28, 0.70, 0.02]
+    pose: {xyz: [0.62, -0.10, 0.85], rpy: [0.0, 0.0, 0.0]}
+  - id: shelf_back
+    type: box
+    dims: [0.02, 0.70, 0.32]
+    pose: {xyz: [0.76, -0.10, 0.70], rpy: [0.0, 0.0, 0.0]}
+  - id: obstacle_box
+    type: box
+    dims: [0.14, 0.14, 0.30]
+    pose: {xyz: [0.42, 0.28, 0.37], rpy: [0.0, 0.0, 0.0]}
+  - id: obstacle_pillar
+    type: cylinder
+    dims: [0.45, 0.045]
+    pose: {xyz: [0.40, -0.02, 0.445], rpy: [0.0, 0.0, 0.0]}

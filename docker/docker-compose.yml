@@ -1,0 +1,84 @@
+# Services for the KIT motion-planning exercise.
+#   core   : CPU-only MoveIt 2 + RViz + mock controller (everyone).
+#   curobo : GPU cuMotion planner node + move_group with the cuMotion pipeline (advanced).
+#   isaac  : Isaac Sim, separate container, DDS-connected (advanced, high-fidelity execution).
+#
+# All services share ROS_DOMAIN_ID so DDS discovery works across containers.
+# Copy .env.example to .env and adjust DISPLAY / ROS_DOMAIN_ID as needed.
+
+x-ros-env: &ros-env
+  ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-42}
+  RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+  DISPLAY: ${DISPLAY:-:0}
+  QT_X11_NO_MITSHM: 1
+
+x-x11-mounts: &x11-mounts
+  - /tmp/.X11-unix:/tmp/.X11-unix:rw
+  - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority:rw
+
+services:
+  core:
+    image: kit-mp-core:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.core
+    environment: *ros-env
+    network_mode: host          # simplest reliable DDS discovery on a single host
+    volumes:
+      - ../ros2_ws/src:/root/ros2_ws/src_mounted:rw   # edit configs live from the host
+      - ../results:/root/results:rw
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    stdin_open: true
+    tty: true
+    command: ros2 launch kit_mp_bringup core.launch.py
+
+  curobo:
+    image: kit-mp-gpu:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.gpu
+    environment: *ros-env
+    network_mode: host
+    volumes:
+      - ../ros2_ws/src:/root/ros2_ws/src_mounted:rw
+      - ../results:/root/results:rw
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    command: ros2 launch kit_mp_curobo cumotion_planner.launch.py
+
+  isaac:
+    image: kit-mp-isaac:latest
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.isaac
+    environment:
+      <<: *ros-env
+      ACCEPT_EULA: "Y"
+      PRIVACY_CONSENT: "Y"
+    network_mode: host
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - isaac-cache:/root/.cache/ov
+      - isaac-kit-cache:/root/.nvidia-omniverse
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    stdin_open: true
+    tty: true
+    command: /run_isaac.sh
+
+volumes:
+  isaac-cache:
+  isaac-kit-cache:

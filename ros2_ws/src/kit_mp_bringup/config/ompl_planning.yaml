@@ -1,0 +1,127 @@
+# =============================================================================
+#  THE OMPL PLAYGROUND  ---  THIS IS THE FILE YOU EDIT
+# =============================================================================
+# Switch planners, tune their hyperparameters, and re-run. Every change here is
+# picked up the next time you launch (config is mounted live from the host).
+#
+# Quick recipe:
+#   1. Change `default_planner_config` under `fr3_arm` to try another planner.
+#   2. Tune the numbers inside `planner_configs` for that planner.
+#   3. Relaunch (core.launch.py) or re-score (scripts/score_local.sh).
+#
+# Hyperparameter cheat-sheet (full guide: docs/03_ompl_playground.md):
+#   range        : max length of a single tree extension. Small = fine but slow;
+#                  large = fast but may jump through thin obstacles. 0.0 = auto.
+#   goal_bias    : probability of sampling the goal directly (0..1). Higher finds
+#                  goals faster in open space, worse in mazes.
+#   the *-star planners (RRTstar, PRMstar, AITstar) keep improving the path if you
+#                  give them more `allowed_planning_time` -> shorter trajectories.
+# =============================================================================
+
+# --- Pipeline plugins (Jazzy API; do not remove) -----------------------------
+planning_plugins:
+  - ompl_interface/OMPLPlanner
+
+request_adapters:
+  - default_planning_request_adapters/ResolveConstraintFrames
+  - default_planning_request_adapters/ValidateWorkspaceBounds
+  - default_planning_request_adapters/CheckStartStateBounds
+  - default_planning_request_adapters/CheckStartStateCollision
+
+response_adapters:
+  # AddTimeOptimalParameterization turns the geometric path into the *timed*
+  # trajectory whose duration is the competition score. Keep it first.
+  - default_planning_response_adapters/AddTimeOptimalParameterization
+  # Ruckig makes the trajectory jerk-limited so the REAL FR3 will accept it
+  # (libfranka aborts jerk-violating trajectories). Do not remove.
+  - default_planning_response_adapters/AddRuckigTrajectorySmoothing
+  - default_planning_response_adapters/ValidateSolution
+  - default_planning_response_adapters/DisplayMotionPath
+
+# --- Collision-check resolution (global correctness/speed knob) ---------------
+# Fraction of the state space checked between two waypoints. Smaller = safer but
+# slower. If your "valid" trajectories clip obstacles on the real robot, lower it.
+longest_valid_segment_fraction: 0.005
+maximum_waypoint_distance: 0.0
+
+# --- Planner definitions ------------------------------------------------------
+planner_configs:
+  RRTConnect:
+    type: geometric::RRTConnect
+    range: 0.0            # try 0.05 .. 0.5
+    goal_bias: 0.05
+
+  RRT:
+    type: geometric::RRT
+    range: 0.0
+    goal_bias: 0.05
+
+  RRTstar:                # asymptotically optimal: longer time -> shorter path
+    type: geometric::RRTstar
+    range: 0.0
+    goal_bias: 0.05
+    delay_collision_checking: 1
+
+  PRM:
+    type: geometric::PRM
+    max_nearest_neighbors: 10
+
+  PRMstar:                # asymptotically optimal roadmap
+    type: geometric::PRMstar
+
+  LazyPRMstar:
+    type: geometric::LazyPRMstar
+
+  BiTRRT:                 # cost-aware bidirectional; good in cluttered scenes
+    type: geometric::BiTRRT
+    range: 0.0
+    temp_change_factor: 0.1
+    init_temperature: 100.0
+    frountier_threshold: 0.0
+    frountier_node_ratio: 0.1
+
+  EST:
+    type: geometric::EST
+    range: 0.0
+    goal_bias: 0.05
+
+  KPIECE:
+    type: geometric::KPIECE
+    range: 0.0
+    goal_bias: 0.05
+    border_fraction: 0.9
+    failed_expansion_score_factor: 0.5
+    min_valid_path_fraction: 0.5
+
+  SBL:
+    type: geometric::SBL
+    range: 0.0
+
+  AITstar:                # anytime, near-optimal; strong "fast trajectory" pick
+    type: geometric::AITstar
+
+  ABITstar:
+    type: geometric::ABITstar
+
+# --- Planning group: this is the FR3 7-DoF arm --------------------------------
+fr3_arm:
+  # >>> Change this line to switch the active planner <<<
+  default_planner_config: RRTConnect
+
+  projection_evaluator: joints(fr3_joint1,fr3_joint2)
+  longest_valid_segment_fraction: 0.005
+
+  # The curated set the exercise sheet asks you to compare. You may reference any
+  # planner defined above by name via the RViz "OMPL" dropdown.
+  planner_configs:
+    - RRTConnect
+    - RRTstar
+    - PRMstar
+    - BiTRRT
+    - KPIECE
+    - AITstar
+
+fr3_arm_hand:
+  default_planner_config: RRTConnect
+  projection_evaluator: joints(fr3_joint1,fr3_joint2)
+  longest_valid_segment_fraction: 0.005

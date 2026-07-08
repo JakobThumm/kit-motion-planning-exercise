@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>kit_mp_isaac</name>
+  <version>1.0.0</version>
+  <description>Isaac Sim assets and ROS 2 bridge for the KIT motion-planning exercise (FR3).</description>
+  <maintainer email="jakob.thumm@kit.edu">Jakob Thumm</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- Runs inside the Isaac Sim container via python.sh; no ROS build deps. -->
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,29 @@
+# cuMotion (cuRobo) MoveIt planning-pipeline parameters. ADVANCED / GPU track.
+#
+# This registers NVIDIA's cuMotion as a second named pipeline alongside "ompl",
+# so you can request it per-plan with MotionPlanRequest.pipeline_id =
+# "isaac_ros_cumotion". A live cumotion_planner_node must be running (started by
+# kit_mp_curobo/launch/cumotion_planner.launch.py).
+planning_plugins:
+  - isaac_ros_cumotion_moveit/CumotionPlanner
+
+request_adapters:
+  - default_planning_request_adapters/ResolveConstraintFrames
+  - default_planning_request_adapters/ValidateWorkspaceBounds
+  - default_planning_request_adapters/CheckStartStateBounds
+  - default_planning_request_adapters/CheckStartStateCollision
+
+response_adapters:
+  - default_planning_response_adapters/AddTimeOptimalParameterization
+  - default_planning_response_adapters/ValidateSolution
+
+# cuMotion planner node settings (forwarded to the running node).
+cumotion:
+  # FR3-specific robot description for cuRobo (collision spheres, cspace, limits).
+  # NOTE: the stock isaac_ros_cumotion ships a Panda XRDF; we provide an FR3 one.
+  robot: fr3.xrdf
+  time_dilation_factor: 1.0     # 1.0 = full speed; lower to slow down
+  num_trajopt_seeds: 12
+  num_graph_seeds: 4
+  interpolation_dt: 0.02
+  collision_activation_distance: 0.01

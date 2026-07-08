@@ -1,0 +1,39 @@
+# ADVANCED track image: CORE image + cuRobo / isaac_ros_cumotion (GPU planner).
+# Requires NVIDIA GPU, driver 580+, CUDA 13, and nvidia-container-toolkit on the host.
+#
+# --- Humble 3.2 fallback (older GPUs) ---------------------------------------
+# If your GPUs predate driver 580 (but are Turing / RTX 2080+), pin the whole
+# project to Humble + isaac_ros_cumotion 3.2:
+#   * base the CORE image on moveit/moveit2:humble-release
+#   * change isaac_ros.repos versions to release-3.2
+#   * apt package prefix becomes ros-humble-*
+# See docs/02_install_gpu.md.
+# ----------------------------------------------------------------------------
+FROM kit-mp-core:latest
+
+SHELL ["/bin/bash", "-c"]
+ENV DEBIAN_FRONTEND=noninteractive
+ENV ROS_DISTRO=jazzy
+ENV WS=/root/ros2_ws
+
+# cuMotion MoveIt plugin + planner node (binaries, if published for your platform).
+# If apt packages are unavailable, comment these out and rely on the vcs build below.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      ros-jazzy-isaac-ros-cumotion \
+      ros-jazzy-isaac-ros-cumotion-moveit \
+      ros-jazzy-isaac-ros-cumotion-examples \
+    && rm -rf /var/lib/apt/lists/* || echo "apt cumotion not available; will build from source"
+
+# Source build fallback (pinned in isaac_ros.repos).
+COPY docker/isaac_ros.repos /tmp/isaac_ros.repos
+WORKDIR ${WS}
+RUN vcs import src < /tmp/isaac_ros.repos || true
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+    && apt-get update \
+    && rosdep install --from-paths src --ignore-src -r -y || true \
+    && rm -rf /var/lib/apt/lists/* \
+    && colcon build --symlink-install --mixin release \
+        --packages-up-to isaac_ros_cumotion_moveit kit_mp_curobo || true
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["bash"]
