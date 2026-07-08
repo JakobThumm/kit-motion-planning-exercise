@@ -25,7 +25,15 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile.core
-    environment: *ros-env
+    environment:
+      <<: *ros-env
+      # RViz uses Mesa software rendering (llvmpipe) by default so it works on any
+      # machine without GPU/DRI passthrough. If you have a working GPU and want
+      # hardware acceleration, set LIBGL_ALWAYS_SOFTWARE=0 in .env and add a
+      # `/dev/dri` device mount (see docs/06_troubleshooting.md).
+      LIBGL_ALWAYS_SOFTWARE: ${LIBGL_ALWAYS_SOFTWARE:-1}
+      LIBGL_ALWAYS_INDIRECT: "0"
+      GALLIUM_DRIVER: llvmpipe
     network_mode: host          # simplest reliable DDS discovery on a single host
     volumes:
       - ../ros2_ws/src:/root/ros2_ws/src_mounted:rw   # edit configs live from the host

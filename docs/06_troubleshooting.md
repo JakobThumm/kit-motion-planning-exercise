@@ -8,6 +8,26 @@ echo $DISPLAY          # should be set (e.g. :0); pass it into the container via
 On Wayland, ensure XWayland is running. On a remote machine, use X forwarding or a
 VNC/NoMachine session.
 
+## RViz: "failed to load driver: iris" / "glx: failed to create dri3 screen"
+The container can't reach your GPU for hardware OpenGL. By default the core service
+uses **Mesa software rendering** (`LIBGL_ALWAYS_SOFTWARE=1`, `GALLIUM_DRIVER=llvmpipe`
+in docker-compose.yml), which works on any machine. If you still see this, confirm
+those env vars are set in the running container (`env | grep GL`).
+
+Want hardware acceleration (faster RViz) and have a working GPU? In `.env` set
+`LIBGL_ALWAYS_SOFTWARE=0` and add a DRI device mount to the core service:
+```yaml
+    devices:
+      - /dev/dri:/dev/dri
+```
+(NVIDIA users: use the GPU track's `--gpus all` path instead.)
+
+## move_group: "Parameter '~moveit_controller_manager' not specified ... No paths can be executed"
+Expected and harmless on the CORE track. Core is **plan-only**: `move_group` comes
+up ("You can start planning now!") and RViz **Plan** works; there is no execution
+controller, so **Plan & Execute** won't run the robot. Execution happens on the
+Isaac / real-FR3 track, and the competition is scored on the *planned* trajectory.
+
 ## `franka_fr3_moveit_config` not found during build
 The FR3 sources are vendored by `vcs import` from `docker/franka.repos`. Rebuild:
 ```bash
