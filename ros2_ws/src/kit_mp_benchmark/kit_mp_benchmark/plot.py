@@ -36,8 +36,8 @@ def plot(data, out_dir):
     ax2.set_ylabel("median planning time [s]")
     ax2.tick_params(axis="x", rotation=30)
 
-    fig.suptitle(f"OMPL planner comparison — task '{data['task']}' "
-                 f"(% = success rate)")
+    fig.suptitle(f"Planner comparison (sampling vs optimization) — "
+                 f"task '{data['task']}'  (% = success rate)")
     fig.tight_layout()
 
     os.makedirs(out_dir, exist_ok=True)

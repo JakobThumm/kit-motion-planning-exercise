@@ -9,9 +9,13 @@ from dataclasses import asdict, dataclass
 
 @dataclass
 class PlannerConfig:
-    # Pipeline: "ompl" (CORE) or "isaac_ros_cumotion" (ADVANCED, GPU).
+    # Pipeline:
+    #   "ompl"                -> sampling-based planners (CORE)
+    #   "stomp"               -> optimization-based planner (CORE)
+    #   "isaac_ros_cumotion"  -> GPU trajectory optimizer (ADVANCED)
     pipeline_id: str = "ompl"
-    # Planner name; must exist in ompl_planning.yaml (ignored for cuMotion).
+    # Planner name; must exist in ompl_planning.yaml. Ignored for stomp/cuMotion
+    # (those pipelines expose a single planner), so leave it as-is for them.
     planner_id: str = "RRTConnect"
 
     allowed_planning_time: float = 5.0

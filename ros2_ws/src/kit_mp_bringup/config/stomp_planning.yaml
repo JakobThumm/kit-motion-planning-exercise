@@ -1,0 +1,37 @@
+# =============================================================================
+#  STOMP  ---  an OPTIMIZATION-based planner (contrast to the OMPL samplers)
+# =============================================================================
+# STOMP (Stochastic Trajectory Optimization for Motion Planning) starts from an
+# initial trajectory and iteratively perturbs it, keeping changes that lower a
+# smoothness + obstacle cost. Unlike the sampling-based OMPL planners it is:
+#   * LOCAL  -> smooth, short trajectories, but it can get stuck in local minima
+#     and FAIL where a sampler (e.g. RRTConnect) would still find a way through
+#     (try it on the narrow_passage scene!),
+#   * gradient-FREE and stochastic -> no derivatives of the cost needed.
+#
+# Select it with PlannerConfig(pipeline_id="stomp") in student_solution.py.
+# Tune the numbers below and observe the effect on success rate and duration.
+planning_plugins:
+  - stomp_moveit/StompPlanner
+
+request_adapters:
+  - default_planning_request_adapters/ResolveConstraintFrames
+  - default_planning_request_adapters/ValidateWorkspaceBounds
+  - default_planning_request_adapters/CheckStartStateBounds
+  - default_planning_request_adapters/CheckStartStateCollision
+
+response_adapters:
+  - default_planning_response_adapters/AddTimeOptimalParameterization
+  - default_planning_response_adapters/AddRuckigTrajectorySmoothing
+  - default_planning_response_adapters/ValidateSolution
+  - default_planning_response_adapters/DisplayMotionPath
+
+stomp_moveit:
+  num_timesteps: 60             # waypoints in the optimized trajectory
+  num_iterations: 40            # optimization iterations (more = better, slower)
+  num_iterations_after_valid: 0 # keep polishing after a valid solution is found
+  num_rollouts: 30              # noisy trajectories sampled per iteration
+  max_rollouts: 30
+  exponentiated_cost_sensitivity: 0.5
+  control_cost_weight: 0.1      # higher = smoother (favours short, gentle motion)
+  delta_t: 0.1

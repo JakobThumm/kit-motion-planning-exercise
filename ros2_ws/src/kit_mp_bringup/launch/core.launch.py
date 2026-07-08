@@ -47,15 +47,18 @@ def launch_setup(context, *args, **kwargs):
         .to_moveit_configs()
     )
 
-    # --- Override OMPL with the student-editable file (mounted live) -----------
+    # --- Load the student-editable planner configs (mounted live) -------------
     # Prefer the host-mounted copy if present, so edits apply without rebuilding.
-    mounted = os.environ.get("KIT_MP_SRC", "")
-    ompl_path = os.path.join(mounted, "kit_mp_bringup", "config", "ompl_planning.yaml")
-    if not (mounted and os.path.isfile(ompl_path)):
-        ompl_path = os.path.join(bringup_share, "config", "ompl_planning.yaml")
-    with open(ompl_path, "r") as f:
-        ompl_override = {"ompl": yaml.safe_load(f)}
+    def load_cfg(filename):
+        mounted = os.environ.get("KIT_MP_SRC", "")
+        path = os.path.join(mounted, "kit_mp_bringup", "config", filename)
+        if not (mounted and os.path.isfile(path)):
+            path = os.path.join(bringup_share, "config", filename)
+        with open(path, "r") as f:
+            return yaml.safe_load(f)
 
+    ompl_override = {"ompl": load_cfg("ompl_planning.yaml")}
+    stomp_override = {"stomp": load_cfg("stomp_planning.yaml")}
     joint_limits = _load_yaml("kit_mp_bringup", "config/joint_limits.yaml")
 
     move_group_node = Node(
@@ -65,6 +68,10 @@ def launch_setup(context, *args, **kwargs):
         parameters=[
             moveit_config.to_dict(),
             ompl_override,                       # student settings win
+            stomp_override,                      # optimization-based planner
+            # Activate both pipelines so plans can request either per-request.
+            {"planning_pipelines": ["ompl", "stomp"],
+             "default_planning_pipeline": "ompl"},
             {"robot_description_planning": joint_limits},
             {"publish_robot_description_semantic": True},
         ],

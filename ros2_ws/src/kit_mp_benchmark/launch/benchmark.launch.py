@@ -17,7 +17,7 @@ from moveit_configs_utils import MoveItConfigsBuilder
 def launch_setup(context, *args, **kwargs):
     task = LaunchConfiguration("task").perform(context)
     reps = LaunchConfiguration("reps").perform(context)
-    planners = LaunchConfiguration("planners").perform(context)
+    specs = LaunchConfiguration("specs").perform(context)
     output = LaunchConfiguration("output").perform(context)
 
     bringup_share = get_package_share_directory("kit_mp_bringup")
@@ -29,6 +29,8 @@ def launch_setup(context, *args, **kwargs):
     )
     with open(os.path.join(bringup_share, "config", "ompl_planning.yaml")) as f:
         ompl_override = {"ompl": yaml.safe_load(f)}
+    with open(os.path.join(bringup_share, "config", "stomp_planning.yaml")) as f:
+        stomp_override = {"stomp": yaml.safe_load(f)}
     with open(os.path.join(bringup_share, "config", "joint_limits.yaml")) as f:
         joint_limits = yaml.safe_load(f)
 
@@ -40,10 +42,13 @@ def launch_setup(context, *args, **kwargs):
         parameters=[
             moveit_config.to_dict(),
             ompl_override,
+            stomp_override,
+            {"planning_pipelines": ["ompl", "stomp"],
+             "default_planning_pipeline": "ompl"},
             {"robot_description_planning": joint_limits},
         ],
         arguments=["--task", task, "--reps", reps,
-                   "--planners", planners, "--output", output],
+                   "--specs", specs, "--output", output],
     )
     return [node]
 
@@ -53,8 +58,9 @@ def generate_launch_description():
         DeclareLaunchArgument("task", default_value="task_01_reach"),
         DeclareLaunchArgument("reps", default_value="10"),
         DeclareLaunchArgument(
-            "planners",
-            default_value="RRTConnect,RRTstar,PRMstar,BiTRRT,KPIECE,AITstar"),
+            "specs",
+            default_value=("ompl:RRTConnect,ompl:RRTstar,ompl:PRMstar,"
+                           "ompl:BiTRRT,ompl:KPIECE,ompl:AITstar,stomp")),
         DeclareLaunchArgument("output", default_value="/root/results/benchmark.json"),
         OpaqueFunction(function=launch_setup),
     ])

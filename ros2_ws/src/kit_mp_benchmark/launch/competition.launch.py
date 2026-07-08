@@ -30,6 +30,8 @@ def launch_setup(context, *args, **kwargs):
 
     with open(os.path.join(bringup_share, "config", "ompl_planning.yaml")) as f:
         ompl_override = {"ompl": yaml.safe_load(f)}
+    with open(os.path.join(bringup_share, "config", "stomp_planning.yaml")) as f:
+        stomp_override = {"stomp": yaml.safe_load(f)}
     with open(os.path.join(bringup_share, "config", "joint_limits.yaml")) as f:
         joint_limits = yaml.safe_load(f)
 
@@ -41,6 +43,9 @@ def launch_setup(context, *args, **kwargs):
         parameters=[
             moveit_config.to_dict(),
             ompl_override,
+            stomp_override,
+            {"planning_pipelines": ["ompl", "stomp"],
+             "default_planning_pipeline": "ompl"},
             {"robot_description_planning": joint_limits},
         ],
         arguments=["--output", output, "--group", group, "--reps", reps],

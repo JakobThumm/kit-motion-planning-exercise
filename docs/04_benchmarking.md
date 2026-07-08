@@ -21,17 +21,27 @@ records success rate, median planning time, and median trajectory duration.
 You get `results/planner_comparison.png` (and `.pdf`): trajectory duration and
 planning time per planner, annotated with success rate.
 
-Change the planner set or scene:
+Change the planner set or scene. Each entry is `pipeline:planner`; a bare
+`stomp` runs the STOMP optimizer, so one sweep compares **sampling-based (OMPL)
+against optimization-based (STOMP)** head to head:
 
 ```bash
 ros2 launch kit_mp_benchmark benchmark.launch.py \
     task:=task_02_shelf_pick reps:=20 \
-    planners:=RRTConnect,RRTstar,AITstar
+    specs:=ompl:RRTConnect,ompl:AITstar,stomp
 ```
 
 The sweep uses the same planning path as the scorer, so it also works for cuMotion
-(`--pipeline isaac_ros_cumotion`) on the advanced track — this is how you compare
-OMPL vs the GPU planner head to head.
+(`stomp` → `isaac_ros_cumotion`) on the advanced track — the GPU planner is itself
+a trajectory optimizer, so you can line up OMPL, STOMP, and cuMotion together.
+
+## Sampling-based vs optimization-based
+
+The default sweep includes `stomp`. Expect the contrast from the lecture to show up
+in the numbers: STOMP (optimization) tends to give **shorter, smoother** trajectories
+in open/cluttered scenes, but a **lower success rate** in `narrow_passage`, where it
+gets stuck in local minima and a sampler like RRTConnect still finds a way through.
+That trade-off — global completeness vs local optimality — is the point of Exercise 4.
 
 ## The official OMPL Planner Arena (optional, deeper stats)
 

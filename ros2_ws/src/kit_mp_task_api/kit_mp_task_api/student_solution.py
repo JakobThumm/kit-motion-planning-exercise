@@ -16,7 +16,8 @@ from kit_mp_task_api.planner_config import PlannerConfig
 
 def student_config() -> PlannerConfig:
     return PlannerConfig(
-        pipeline_id="ompl",          # "ompl" (CPU) or "isaac_ros_cumotion" (GPU)
+        # "ompl" (samplers) | "stomp" (optimizer) | "isaac_ros_cumotion" (GPU)
+        pipeline_id="ompl",
         planner_id="RRTConnect",     # try RRTstar / PRMstar / BiTRRT / KPIECE / AITstar
 
         # More time lets the *-star planners shorten the trajectory. Costs planning

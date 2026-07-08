@@ -14,8 +14,10 @@ By the end you should be able to:
 
 1. **Explain** the planning pipeline: inverse kinematics → collision checking →
    geometric planning → trajectory optimization (this mirrors the lecture).
-2. **Describe** how different algorithms search the configuration space and how
-   that shows up in planning time, path length, and trajectory duration.
+2. **Describe** how different algorithms explore or optimize the configuration
+   space — sampling-based (OMPL) vs optimization-based (STOMP, and cuMotion on the
+   GPU) — and how that shows up in planning time, path length, and trajectory
+   duration.
 3. **Judge** which planner and which hyperparameters suit a given scene, using
    evidence from the benchmark harness.
 4. **Compose** a competition entry: a planner + hyperparameters that produce the

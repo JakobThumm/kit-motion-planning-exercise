@@ -52,4 +52,19 @@ pick it from the RViz **OMPL** dropdown.
 4. Across the three scenes (`cluttered_table`, `shelf`, `narrow_passage`), argue
    which planner you would pick for each and why.
 
+## Optimization-based planning: STOMP
+
+OMPL planners *sample* the configuration space. **STOMP** takes a different
+approach: it starts from an initial trajectory and iteratively optimizes a
+smoothness + obstacle cost. Select it with `pipeline_id="stomp"` in
+`student_solution.py`; tune it in
+[`kit_mp_bringup/config/stomp_planning.yaml`](../ros2_ws/src/kit_mp_bringup/config/stomp_planning.yaml)
+(`num_rollouts`, `num_iterations`, `control_cost_weight`).
+
+Because it optimizes rather than searches, STOMP usually produces **smoother,
+shorter** trajectories in open scenes — but it is **local**: it can get stuck in a
+local minimum and **fail** in `narrow_passage`, where a sampler still succeeds. This
+sampling-vs-optimization contrast is Exercise 4; measure it in
+[benchmarking](04_benchmarking.md).
+
 Then quantify it: [benchmarking](04_benchmarking.md).
