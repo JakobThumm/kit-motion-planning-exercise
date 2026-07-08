@@ -1,122 +1,61 @@
-# CORE track launch: FR3 + MoveIt 2 + RViz + mock (CPU-only) controllers.
+# CORE track launch: FR3 + MoveIt 2 + RViz (CPU only, no GPU).
 #
-# You do NOT need to edit this file. It wires the FR3 model, the MoveIt move_group,
-# and RViz together, and loads YOUR planner settings from config/ompl_planning.yaml.
+# You do NOT need to edit this file. It loads the FR3 model and the MoveIt
+# move_group with YOUR planner settings from config/ompl_planning.yaml and
+# config/stomp_planning.yaml (mounted live from the host).
 #
-# What it starts:
-#   * robot_state_publisher  (FR3 URDF -> TF)
-#   * ros2_control_node with mock hardware (fake, no GPU) + joint_state_broadcaster
-#   * fr3_arm_controller (joint_trajectory_controller) executes planned trajectories
-#   * move_group           (MoveIt, OMPL pipeline with your ompl_planning.yaml)
-#   * rviz2                (MotionPlanning panel)
-#   * scene_loader         (loads the selected collision scene)
+# This is a PLANNING setup: move_group + RViz. RViz "Plan" shows the trajectory.
+# (Full "Plan & Execute" on a controller is handled on the Isaac / real-FR3 track;
+#  the competition is scored on the planned trajectory, so no controller is needed.)
 
 import os
-import yaml
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from moveit_configs_utils import MoveItConfigsBuilder
 
-
-def _load_yaml(package, rel_path):
-    path = os.path.join(get_package_share_directory(package), rel_path)
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
+from kit_mp_task_api.moveit_params import moveit_params, fr3_robot_description
 
 
 def launch_setup(context, *args, **kwargs):
     use_rviz = LaunchConfiguration("use_rviz").perform(context)
     scene = LaunchConfiguration("scene").perform(context)
-
     bringup_share = get_package_share_directory("kit_mp_bringup")
 
-    # --- Assemble the FR3 MoveIt configuration --------------------------------
-    moveit_config = (
-        MoveItConfigsBuilder("fr3", package_name="franka_fr3_moveit_config")
-        .robot_description(
-            mappings={"robot_ip": "dont-care", "use_fake_hardware": "true"}
-        )
-        .planning_pipelines(pipelines=["ompl"], default_planning_pipeline="ompl")
-        .trajectory_execution(
-            file_path=os.path.join(bringup_share, "config", "moveit_controllers.yaml")
-        )
-        .to_moveit_configs()
-    )
-
-    # --- Load the student-editable planner configs (mounted live) -------------
-    # Prefer the host-mounted copy if present, so edits apply without rebuilding.
-    def load_cfg(filename):
-        mounted = os.environ.get("KIT_MP_SRC", "")
-        path = os.path.join(mounted, "kit_mp_bringup", "config", filename)
-        if not (mounted and os.path.isfile(path)):
-            path = os.path.join(bringup_share, "config", filename)
-        with open(path, "r") as f:
-            return yaml.safe_load(f)
-
-    ompl_override = {"ompl": load_cfg("ompl_planning.yaml")}
-    stomp_override = {"stomp": load_cfg("stomp_planning.yaml")}
-    joint_limits = _load_yaml("kit_mp_bringup", "config/joint_limits.yaml")
+    params = moveit_params()
+    robot_description = fr3_robot_description()
 
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
         output="screen",
-        parameters=[
-            moveit_config.to_dict(),
-            ompl_override,                       # student settings win
-            stomp_override,                      # optimization-based planner
-            # Activate both pipelines so plans can request either per-request.
-            {"planning_pipelines": ["ompl", "stomp"],
-             "default_planning_pipeline": "ompl"},
-            {"robot_description_planning": joint_limits},
-            {"publish_robot_description_semantic": True},
-        ],
+        parameters=params,
     )
 
     rsp_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
         output="screen",
-        parameters=[moveit_config.robot_description],
+        parameters=[robot_description],
     )
 
-    ros2_controllers_path = os.path.join(
-        bringup_share, "config", "ros2_controllers.yaml"
+    # Publishes a (valid, default) joint state so move_group knows the start state
+    # for interactive planning in RViz. The scorer sets the start state explicitly
+    # and does not rely on this.
+    jsp_node = Node(
+        package="joint_state_publisher",
+        executable="joint_state_publisher",
+        output="log",
     )
-    ros2_control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[ros2_controllers_path],
-        remappings=[("~/robot_description", "/robot_description")],
-        output="screen",
-    )
-
-    spawners = [
-        Node(
-            package="controller_manager",
-            executable="spawner",
-            arguments=[c, "--controller-manager", "/controller_manager"],
-            output="screen",
-        )
-        for c in ["joint_state_broadcaster", "fr3_arm_controller"]
-    ]
 
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
         output="log",
         arguments=["-d", os.path.join(bringup_share, "rviz", "exercise.rviz")],
-        parameters=[
-            moveit_config.robot_description,
-            moveit_config.robot_description_semantic,
-            moveit_config.robot_description_kinematics,
-            moveit_config.planning_pipelines,
-            {"robot_description_planning": joint_limits},
-        ],
+        parameters=[robot_description] + moveit_params(),
     )
 
     scene_loader = Node(
@@ -126,7 +65,7 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{"scene": scene}],
     )
 
-    nodes = [rsp_node, ros2_control_node, *spawners, move_group_node]
+    nodes = [rsp_node, jsp_node, move_group_node]
     if scene:
         nodes.append(scene_loader)
     if use_rviz.lower() == "true":
@@ -135,14 +74,12 @@ def launch_setup(context, *args, **kwargs):
 
 
 def generate_launch_description():
-    return LaunchDescription(
-        [
-            DeclareLaunchArgument("use_rviz", default_value="true"),
-            DeclareLaunchArgument(
-                "scene",
-                default_value="cluttered_table",
-                description="Scene name from kit_mp_scenes (empty = none).",
-            ),
-            OpaqueFunction(function=launch_setup),
-        ]
-    )
+    return LaunchDescription([
+        DeclareLaunchArgument("use_rviz", default_value="true"),
+        DeclareLaunchArgument(
+            "scene",
+            default_value="cluttered_table",
+            description="Scene name from kit_mp_scenes (empty = none).",
+        ),
+        OpaqueFunction(function=launch_setup),
+    ])
