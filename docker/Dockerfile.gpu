@@ -9,7 +9,8 @@
 #   * apt package prefix becomes ros-humble-*
 # See docs/02_install_gpu.md.
 # ----------------------------------------------------------------------------
-FROM kit-mp-core:latest
+ARG CORE_IMAGE=ghcr.io/jakobthumm/kit-mp-core:latest
+FROM ${CORE_IMAGE}
 
 SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND=noninteractive

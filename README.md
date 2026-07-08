@@ -23,15 +23,25 @@ You can win the competition on the **CORE** track alone. The metric is CPU-only 
 
 ---
 
-## Quickstart (CORE track, ~5 min after the image is built)
+## Quickstart (CORE track)
+
+If your instructor published the prebuilt image (see [docs/07_distribution.md](docs/07_distribution.md)),
+**pull it instead of building** — much faster:
 
 ```bash
-# 1. Build the CPU image and vendor the FR3 packages
 cd docker
-docker compose build core
+cp .env.example .env          # optional: pin KIT_MP_TAG to your semester
+docker compose pull core      # download the prebuilt CORE image from GHCR
+cd ..
+./docker/run_core.sh          # launch MoveIt + RViz + mock controller
+```
 
-# 2. Launch MoveIt + RViz + mock controller
-./run_core.sh        # allows X11, then: docker compose run --rm core ros2 launch kit_mp_bringup core.launch.py
+Or build it yourself:
+
+```bash
+cd docker
+docker compose build core     # vendors the FR3 packages, builds the workspace
+./run_core.sh
 ```
 
 In RViz: set a goal with the **MotionPlanning** panel, pick a planner in the **OMPL** dropdown,
@@ -67,6 +77,7 @@ Score a competition entry locally (still CPU-only):
 5. [Benchmarking planners](docs/04_benchmarking.md)
 6. [The competition](docs/05_competition.md)
 7. [Troubleshooting](docs/06_troubleshooting.md)
+8. [Distributing the image (instructors)](docs/07_distribution.md)
 
 The exercise sheet itself (with the graded questions) is distributed as a PDF alongside the
 lecture. This repository is the software you use to answer it.

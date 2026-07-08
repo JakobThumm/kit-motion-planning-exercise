@@ -18,7 +18,10 @@ x-x11-mounts: &x11-mounts
 
 services:
   core:
-    image: kit-mp-core:latest
+    # Prebuilt image published to GHCR. Students run `docker compose pull core`.
+    # Pin a semester via KIT_MP_TAG in .env (default: latest). `build` stays as a
+    # local fallback and tags the result with this same name.
+    image: ghcr.io/jakobthumm/kit-mp-core:${KIT_MP_TAG:-latest}
     build:
       context: ..
       dockerfile: docker/Dockerfile.core
@@ -33,10 +36,14 @@ services:
     command: ros2 launch kit_mp_bringup core.launch.py
 
   curobo:
+    # GPU image is NOT redistributable (NVIDIA/Isaac layers) — built locally,
+    # FROM the (pulled or built) core image.
     image: kit-mp-gpu:latest
     build:
       context: ..
       dockerfile: docker/Dockerfile.gpu
+      args:
+        CORE_IMAGE: ghcr.io/jakobthumm/kit-mp-core:${KIT_MP_TAG:-latest}
     environment: *ros-env
     network_mode: host
     volumes:
